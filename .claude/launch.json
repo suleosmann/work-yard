@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "workyard",
+      "runtimeExecutable": "php",
+      "runtimeArgs": ["artisan", "serve", "--port=8317"],
+      "port": 8317,
+      "url": "http://127.0.0.1:8317"
+    }
+  ]
+}
