@@ -1,4 +1,4 @@
-<div>
+<div x-data="{ filters: false }">
     <div class="topbar">
         <div class="topbar-left">
             <h1 class="display">Projects</h1>
@@ -12,38 +12,136 @@
     </div>
 
     <div class="content">
-        @if ($this->projects->isEmpty())
-            <div class="empty">No projects yet.</div>
-        @else
-            <div class="project-grid">
-                @foreach ($this->projects as $project)
-                    @php
-                        $done = $this->doneCount($project);
-                        $pct = $project->tasks_count ? (int) round(($done / $project->tasks_count) * 100) : 0;
-                    @endphp
-                    <div class="project-card" style="position:relative;">
-                        <a href="{{ route('projects.board', $project) }}" wire:navigate style="text-decoration:none; color:inherit; display:block;">
-                            <div class="name">{{ $project->name }}</div>
-                            <div class="desc">{{ $project->description ?: 'No description yet.' }}</div>
-                            <div class="progress-wrap" style="margin-top:0;">
-                                <div class="progress-track"><div class="progress-fill" style="width:{{ $pct }}%;"></div></div>
-                                <div class="progress-text mono">{{ $done }}/{{ $project->tasks_count }} done &middot; {{ $pct }}%</div>
-                            </div>
-                        </a>
-                        @can('edit projects')
-                            <button
-                                class="icon-btn"
-                                style="position:absolute; top:12px; right:12px;"
-                                title="Edit project"
-                                wire:click="startEdit({{ $project->id }})"
-                            >&#9998;</button>
-                        @endcan
-                    </div>
-                @endforeach
+        {{-- Summary cards --}}
+        <div class="stat-row">
+            <div class="stat-card accent">
+                <div class="stat-label">Projects</div>
+                <div class="stat-value">{{ $this->stats['projects'] }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total tasks</div>
+                <div class="stat-value">{{ $this->stats['tasks'] }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value">{{ $this->stats['done'] }}</div>
+                <div class="stat-sub">{{ $this->stats['done_pct'] }}% of all tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Open</div>
+                <div class="stat-value">{{ $this->stats['tasks'] - $this->stats['done'] }}</div>
+                <div class="stat-sub">still in the pipeline</div>
+            </div>
+        </div>
+
+        {{-- Toolbar --}}
+        <div class="table-toolbar">
+            <span class="table-count">{{ $this->projects->total() }} {{ Str::plural('project', $this->projects->total()) }}</span>
+            <button class="btn btn-ghost filter-btn" @click="filters = true" type="button">
+                Filter
+                @if ($this->activeFilterCount())
+                    <span class="fdot">{{ $this->activeFilterCount() }}</span>
+                @endif
+            </button>
+        </div>
+
+        {{-- Table --}}
+        <div class="wy-table-wrap">
+            <table class="wy-table">
+                <thead>
+                    <tr>
+                        <th>Ref</th>
+                        <th>Project</th>
+                        <th class="right">Tasks</th>
+                        <th>Progress</th>
+                        @can('edit projects')<th class="right">&nbsp;</th>@endcan
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($this->projects as $project)
+                        @php $pct = $project->tasks_count ? (int) round(($project->done_tasks_count / $project->tasks_count) * 100) : 0; @endphp
+                        <tr wire:key="project-{{ $project->id }}">
+                            <td class="cell-mono">{{ $project->slug }}</td>
+                            <td>
+                                <a href="{{ route('projects.board', $project) }}" wire:navigate class="cell-title">{{ $project->name }}</a>
+                                @if ($project->description)
+                                    <div class="cell-sub">{{ Str::limit($project->description, 64) }}</div>
+                                @endif
+                            </td>
+                            <td class="right cell-mono">{{ $project->tasks_count }}</td>
+                            <td>
+                                <div class="prog-cell">
+                                    <span class="mini-track"><i style="width:{{ $pct }}%;"></i></span>
+                                    <span class="cell-mono">{{ $project->done_tasks_count }}/{{ $project->tasks_count }}</span>
+                                </div>
+                            </td>
+                            @can('edit projects')
+                                <td class="right">
+                                    <button class="icon-btn" title="Edit project" wire:click="startEdit({{ $project->id }})">&#9998;</button>
+                                </td>
+                            @endcan
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5">
+                                <div class="table-empty">
+                                    @if ($this->activeFilterCount())
+                                        No projects match your filters.
+                                    @else
+                                        No projects yet.
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Pagination --}}
+        @if ($this->projects->hasPages())
+            <div class="pagination">
+                <span class="range">Showing {{ $this->projects->firstItem() }}&ndash;{{ $this->projects->lastItem() }} of {{ $this->projects->total() }}</span>
+                <div class="pages">
+                    <button class="page-btn" wire:click="previousPage" @disabled($this->projects->onFirstPage())>Prev</button>
+                    <span class="now">Page {{ $this->projects->currentPage() }} / {{ $this->projects->lastPage() }}</span>
+                    <button class="page-btn" wire:click="nextPage" @disabled(! $this->projects->hasMorePages())>Next</button>
+                </div>
             </div>
         @endif
     </div>
 
+    {{-- Slide-in filter drawer --}}
+    <div x-show="filters" x-transition.opacity class="drawer-backdrop" @click="filters = false" x-cloak></div>
+    <aside class="filter-drawer" :class="{ open: filters }">
+        <div class="drawer-head">
+            <div>
+                <div class="kicker">Refine</div>
+                <h3>Filter projects</h3>
+            </div>
+            <button class="modal-close" @click="filters = false" type="button">&times;</button>
+        </div>
+        <div class="drawer-body">
+            <div class="filter-group">
+                <span class="group-label">Search</span>
+                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Name or description&hellip;">
+            </div>
+            <div class="filter-group">
+                <span class="group-label">Sort by</span>
+                <select wire:model.live="sort">
+                    <option value="name">Name (A&ndash;Z)</option>
+                    <option value="tasks">Most tasks</option>
+                    <option value="newest">Newest first</option>
+                </select>
+            </div>
+        </div>
+        <div class="drawer-foot">
+            <button class="btn btn-ghost btn-sm" wire:click="clearFilters" type="button">Clear all</button>
+            <button class="btn btn-primary btn-sm" @click="filters = false" type="button">Done</button>
+        </div>
+    </aside>
+
+    {{-- Create / edit modal --}}
     @if ($showForm)
         <div class="overlay" wire:click.self="cancel">
             <div class="modal">

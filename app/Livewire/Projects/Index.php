@@ -3,18 +3,30 @@
 namespace App\Livewire\Projects;
 
 use App\Models\Project;
+use App\Models\Task;
 use App\Support\Permission;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.pm')]
 #[Title('Projects')]
 class Index extends Component
 {
+    use WithPagination;
+
+    #[Url]
+    public string $search = '';
+
+    #[Url]
+    public string $sort = 'name';
+
     public bool $showForm = false;
 
     public ?Project $editing = null;
@@ -23,18 +35,69 @@ class Index extends Component
 
     public string $description = '';
 
-    /**
-     * @return Collection<int, Project>
-     */
-    #[Computed]
-    public function projects(): Collection
+    public function updatedSearch(): void
     {
-        return Project::withCount('tasks')->orderBy('name')->get();
+        $this->resetPage();
     }
 
-    public function doneCount(Project $project): int
+    public function updatedSort(): void
     {
-        return $project->tasks()->where('status', 'done')->count();
+        $this->resetPage();
+    }
+
+    public function clearFilters(): void
+    {
+        $this->reset(['search', 'sort']);
+        $this->resetPage();
+    }
+
+    public function activeFilterCount(): int
+    {
+        return (filled($this->search) ? 1 : 0) + ($this->sort !== 'name' ? 1 : 0);
+    }
+
+    /**
+     * @return LengthAwarePaginator<int, Project>
+     */
+    #[Computed]
+    public function projects(): LengthAwarePaginator
+    {
+        $query = Project::query()
+            ->withCount('tasks')
+            ->withCount(['tasks as done_tasks_count' => fn (Builder $q) => $q->where('status', 'done')]);
+
+        if (filled($this->search)) {
+            $needle = mb_strtolower($this->search);
+            $query->where(function (Builder $q) use ($needle) {
+                $q->whereRaw('lower(name) like ?', ["%{$needle}%"])
+                    ->orWhereRaw('lower(description) like ?', ["%{$needle}%"]);
+            });
+        }
+
+        match ($this->sort) {
+            'tasks' => $query->orderByDesc('tasks_count')->orderBy('name'),
+            'newest' => $query->latest('id'),
+            default => $query->orderBy('name'),
+        };
+
+        return $query->paginate(8);
+    }
+
+    /**
+     * @return array{projects: int, tasks: int, done: int, done_pct: int}
+     */
+    #[Computed]
+    public function stats(): array
+    {
+        $totalTasks = Task::count();
+        $doneTasks = Task::where('status', 'done')->count();
+
+        return [
+            'projects' => Project::count(),
+            'tasks' => $totalTasks,
+            'done' => $doneTasks,
+            'done_pct' => $totalTasks ? (int) round(($doneTasks / $totalTasks) * 100) : 0,
+        ];
     }
 
     public function startCreate(): void

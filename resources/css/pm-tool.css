@@ -501,3 +501,112 @@
   .pm-tool .auth-aside{display:none;}
   .pm-tool .auth-card .mobile-brand{display:flex;}
 }
+
+/* ================= Data tables, stats, filter drawer, pagination ================= */
+
+/* Stat cards */
+.pm-tool .stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;}
+.pm-tool .stat-card{
+  background:#fff; border:1.5px solid var(--line); border-radius:9px; padding:16px 18px;
+}
+.pm-tool .stat-card .stat-label{
+  font-family:'IBM Plex Mono'; font-size:10px; letter-spacing:1.2px; text-transform:uppercase;
+  color:#8A7E72; margin-bottom:10px;
+}
+.pm-tool .stat-card .stat-value{font-family:'Archivo Black'; font-size:26px; line-height:1;}
+.pm-tool .stat-card .stat-sub{font-size:11px; color:#B4A798; margin-top:6px;}
+.pm-tool .stat-card.accent{background:var(--orange); border-color:var(--orange); color:#fff;}
+.pm-tool .stat-card.accent .stat-label{color:rgba(255,255,255,.82);}
+.pm-tool .stat-card.accent .stat-sub{color:rgba(255,255,255,.82);}
+
+/* Toolbar above the table */
+.pm-tool .table-toolbar{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  margin-bottom:12px; flex-wrap:wrap;
+}
+.pm-tool .table-count{font-family:'IBM Plex Mono'; font-size:11.5px; color:#8A7E72;}
+.pm-tool .filter-btn{position:relative; display:inline-flex; align-items:center; gap:7px;}
+.pm-tool .filter-btn .fdot{
+  min-width:17px; height:17px; padding:0 4px; border-radius:9px; background:var(--orange); color:#fff;
+  font-family:'IBM Plex Mono'; font-size:9.5px; display:inline-flex; align-items:center; justify-content:center;
+}
+
+/* Data table */
+.pm-tool .wy-table-wrap{
+  background:#fff; border:1.5px solid var(--line); border-radius:10px; overflow-x:auto;
+}
+.pm-tool table.wy-table{width:100%; border-collapse:collapse; font-size:13px; min-width:520px;}
+.pm-tool .wy-table thead th{
+  text-align:left; font-family:'IBM Plex Mono'; font-size:10px; letter-spacing:1px; text-transform:uppercase;
+  color:#8A7E72; font-weight:600; padding:13px 16px; border-bottom:1.5px solid var(--line); background:var(--paper);
+  white-space:nowrap;
+}
+.pm-tool .wy-table thead th.right{text-align:right;}
+.pm-tool .wy-table tbody td{padding:13px 16px; border-bottom:1px solid var(--line); vertical-align:middle;}
+.pm-tool .wy-table tbody tr:last-child td{border-bottom:none;}
+.pm-tool .wy-table tbody tr:hover{background:var(--orange-tint-2);}
+.pm-tool .wy-table td.right{text-align:right;}
+.pm-tool .wy-table .cell-title{font-weight:600; color:var(--ink); text-decoration:none;}
+.pm-tool .wy-table .cell-title:hover{color:var(--orange-deep);}
+.pm-tool .wy-table .cell-sub{font-size:11.5px; color:#8A7E72; margin-top:2px; max-width:340px;}
+.pm-tool .cell-mono{font-family:'IBM Plex Mono'; font-size:11.5px; color:#8A7E72;}
+.pm-tool .prog-cell{display:flex; align-items:center; gap:9px;}
+.pm-tool .mini-track{width:84px; height:5px; background:var(--line); border-radius:3px; overflow:hidden; flex-shrink:0;}
+.pm-tool .mini-track i{display:block; height:100%; background:var(--orange);}
+.pm-tool .role-badge{
+  font-family:'IBM Plex Mono'; font-size:10px; text-transform:uppercase; letter-spacing:.5px;
+  padding:3px 9px; border-radius:5px; background:var(--ink); color:#fff; white-space:nowrap;
+}
+.pm-tool .role-badge.none{background:var(--line); color:#8A7E72;}
+.pm-tool .table-empty{padding:44px 20px; text-align:center; color:#B4A798; font-size:13px;}
+
+/* Pagination */
+.pm-tool .pagination{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; flex-wrap:wrap;
+}
+.pm-tool .pagination .range{font-family:'IBM Plex Mono'; font-size:11px; color:#8A7E72;}
+.pm-tool .pagination .pages{display:flex; align-items:center; gap:8px;}
+.pm-tool .pagination .now{font-family:'IBM Plex Mono'; font-size:11.5px; color:var(--ink);}
+.pm-tool .page-btn{
+  font-family:'Work Sans'; font-weight:600; font-size:12.5px; padding:7px 13px;
+  border:1.5px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); cursor:pointer;
+}
+.pm-tool .page-btn:hover:not(:disabled){border-color:var(--ink);}
+.pm-tool .page-btn:disabled{opacity:.4; cursor:not-allowed;}
+
+/* Slide-in filter drawer */
+.pm-tool .drawer-backdrop{position:fixed; inset:0; background:rgba(21,17,13,.42); z-index:60;}
+.pm-tool .filter-drawer{
+  position:fixed; top:0; right:0; height:100vh; width:344px; max-width:88vw; background:#fff; z-index:61;
+  box-shadow:-14px 0 34px rgba(21,17,13,.20);
+  transform:translateX(100%); transition:transform .26s cubic-bezier(.4,0,.2,1);
+  display:flex; flex-direction:column;
+}
+.pm-tool .filter-drawer.open{transform:translateX(0);}
+.pm-tool .drawer-head{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:20px 22px; border-bottom:1.5px solid var(--line);
+}
+.pm-tool .drawer-head h3{font-family:'Archivo Black'; font-size:16px; margin:0;}
+.pm-tool .drawer-head .kicker{font-family:'IBM Plex Mono'; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--orange-deep); margin-bottom:3px;}
+.pm-tool .drawer-body{padding:22px; overflow:auto; flex:1; display:flex; flex-direction:column; gap:24px;}
+.pm-tool .filter-group .group-label{
+  display:block; font-family:'IBM Plex Mono'; font-size:10px; letter-spacing:1px; text-transform:uppercase;
+  color:#8A7E72; margin-bottom:11px;
+}
+.pm-tool .filter-drawer input[type=text],
+.pm-tool .filter-drawer select{
+  width:100%; font-family:'Work Sans'; font-size:13px; padding:9px 11px;
+  border:1.5px solid var(--line); border-radius:6px; background:#fff; color:var(--ink);
+}
+.pm-tool .check-row{display:flex; align-items:center; gap:9px; font-size:13px; padding:7px 0; cursor:pointer;}
+.pm-tool .check-row input{width:15px; height:15px; accent-color:var(--orange);}
+.pm-tool .drawer-foot{padding:16px 22px; border-top:1.5px solid var(--line); display:flex; gap:10px;}
+.pm-tool .drawer-foot .btn{flex:1; justify-content:center;}
+
+@media (max-width:1000px){
+  .pm-tool .stat-row{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:560px){
+  .pm-tool .stat-row{grid-template-columns:1fr;}
+}

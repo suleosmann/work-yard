@@ -1,4 +1,4 @@
-<div>
+<div x-data="{ filters: false }">
     <div class="topbar">
         <div class="topbar-left">
             <h1 class="display">Users</h1>
@@ -12,25 +12,136 @@
     </div>
 
     <div class="content">
-        <div class="res-grid">
-            @foreach ($this->users as $user)
-                <div class="res-card">
-                    <div class="res-icon mono">{{ strtoupper(substr($user->name, 0, 2)) }}</div>
-                    <div>
-                        <div class="res-title">{{ $user->name }}</div>
-                        <div class="res-sub mono">{{ $user->email }}</div>
-                        @if ($user->phone)
-                            <div class="res-sub mono">{{ $user->phone }}</div>
-                        @endif
-                        <div style="margin-top:6px;">
-                            <span class="chip active" style="cursor:default;">{{ $user->roles->pluck('name')->first() ?? 'no role' }}</span>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
+        {{-- Summary cards --}}
+        @php
+            $byRole = $this->stats['byRole'];
+            $contributors = ($byRole['developer'] ?? 0) + ($byRole['qa'] ?? 0);
+        @endphp
+        <div class="stat-row">
+            <div class="stat-card accent">
+                <div class="stat-label">Total users</div>
+                <div class="stat-value">{{ $this->stats['total'] }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Admins</div>
+                <div class="stat-value">{{ $byRole['admin'] ?? 0 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Project managers</div>
+                <div class="stat-value">{{ $byRole['pm'] ?? 0 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Contributors</div>
+                <div class="stat-value">{{ $contributors }}</div>
+                <div class="stat-sub">developers &amp; QA</div>
+            </div>
         </div>
+
+        {{-- Toolbar --}}
+        <div class="table-toolbar">
+            <span class="table-count">{{ $this->users->total() }} {{ Str::plural('user', $this->users->total()) }}</span>
+            <button class="btn btn-ghost filter-btn" @click="filters = true" type="button">
+                Filter
+                @if ($this->activeFilterCount())
+                    <span class="fdot">{{ $this->activeFilterCount() }}</span>
+                @endif
+            </button>
+        </div>
+
+        {{-- Table --}}
+        <div class="wy-table-wrap">
+            <table class="wy-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th class="right">Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($this->users as $user)
+                        @php $userRole = $user->roles->pluck('name')->first(); @endphp
+                        <tr wire:key="user-{{ $user->id }}">
+                            <td>
+                                <div class="cell-title">{{ $user->name }}</div>
+                                <div class="cell-sub mono">{{ $user->email }}</div>
+                            </td>
+                            <td class="cell-mono">{{ $user->phone ?: '—' }}</td>
+                            <td>
+                                <span class="role-badge {{ $userRole ? '' : 'none' }}">{{ $userRole ?? 'no role' }}</span>
+                            </td>
+                            <td class="right cell-mono">{{ $user->created_at?->format('M j, Y') }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4">
+                                <div class="table-empty">
+                                    @if ($this->activeFilterCount())
+                                        No users match your filters.
+                                    @else
+                                        No users yet.
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Pagination --}}
+        @if ($this->users->hasPages())
+            <div class="pagination">
+                <span class="range">Showing {{ $this->users->firstItem() }}&ndash;{{ $this->users->lastItem() }} of {{ $this->users->total() }}</span>
+                <div class="pages">
+                    <button class="page-btn" wire:click="previousPage" @disabled($this->users->onFirstPage())>Prev</button>
+                    <span class="now">Page {{ $this->users->currentPage() }} / {{ $this->users->lastPage() }}</span>
+                    <button class="page-btn" wire:click="nextPage" @disabled(! $this->users->hasMorePages())>Next</button>
+                </div>
+            </div>
+        @endif
     </div>
 
+    {{-- Slide-in filter drawer --}}
+    <div x-show="filters" x-transition.opacity class="drawer-backdrop" @click="filters = false" x-cloak></div>
+    <aside class="filter-drawer" :class="{ open: filters }">
+        <div class="drawer-head">
+            <div>
+                <div class="kicker">Refine</div>
+                <h3>Filter users</h3>
+            </div>
+            <button class="modal-close" @click="filters = false" type="button">&times;</button>
+        </div>
+        <div class="drawer-body">
+            <div class="filter-group">
+                <span class="group-label">Search</span>
+                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Name or email&hellip;">
+            </div>
+            <div class="filter-group">
+                <span class="group-label">Role</span>
+                @foreach ($this->roles as $roleOption)
+                    <label class="check-row">
+                        <input type="checkbox" wire:model.live="roleFilter" value="{{ $roleOption }}">
+                        {{ ucfirst($roleOption) }}
+                    </label>
+                @endforeach
+            </div>
+            <div class="filter-group">
+                <span class="group-label">Sort by</span>
+                <select wire:model.live="sort">
+                    <option value="name">Name (A&ndash;Z)</option>
+                    <option value="newest">Newest first</option>
+                </select>
+            </div>
+        </div>
+        <div class="drawer-foot">
+            <button class="btn btn-ghost btn-sm" wire:click="clearFilters" type="button">Clear all</button>
+            <button class="btn btn-primary btn-sm" @click="filters = false" type="button">Done</button>
+        </div>
+    </aside>
+
+    {{-- Create user modal --}}
     @if ($showForm)
         <div class="overlay" wire:click.self="cancel">
             <div class="modal">
