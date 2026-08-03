@@ -278,3 +278,81 @@
   .pm-tool .sidebar{width:100%; flex-direction:row; overflow-x:auto; align-items:center;}
   .pm-tool .board{grid-template-columns:1fr;}
 }
+
+/* ---------- Marketing / landing page ---------- */
+.pm-tool.site{background:var(--bg);}
+.pm-tool .site-nav{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 32px; border-bottom:1px solid var(--line);
+}
+.pm-tool .site-nav .brand{text-decoration:none;}
+.pm-tool .site-main{max-width:1040px; margin:0 auto; padding:0 32px;}
+.pm-tool .hero{
+  padding:76px 0 56px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:18px;
+}
+.pm-tool .hero .eyebrow{
+  font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--orange-deep);
+  background:var(--orange-tint); padding:5px 12px; border-radius:14px;
+}
+.pm-tool .hero h1{
+  font-family:'Archivo Black'; font-size:40px; line-height:1.15; margin:0;
+  max-width:680px;
+}
+.pm-tool .hero p{
+  font-size:15.5px; color:#5A4F44; max-width:560px; line-height:1.6; margin:0;
+}
+.pm-tool .hero .actions{display:flex; gap:10px; margin-top:6px;}
+.pm-tool .btn-lg{padding:12px 22px; font-size:14px; border-radius:7px;}
+
+.pm-tool .section-label{
+  font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:1.5px;
+  text-transform:uppercase; color:#8A7E72; text-align:center; margin-bottom:10px;
+}
+.pm-tool .section-title{
+  font-family:'Archivo Black'; font-size:24px; text-align:center;
+  margin:0 0 36px;
+}
+
+.pm-tool .feature-grid{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:64px;
+}
+.pm-tool .feature-card{
+  background:#fff; border:1.5px solid var(--line); border-radius:9px; padding:20px 18px;
+}
+.pm-tool .feature-card .icon{
+  width:34px; height:34px; border-radius:8px; background:var(--orange-tint);
+  color:var(--orange-deep); font-family:'IBM Plex Mono'; font-weight:600; font-size:13px;
+  display:flex; align-items:center; justify-content:center; margin-bottom:14px;
+}
+.pm-tool .feature-card h3{font-size:14.5px; margin:0 0 6px;}
+.pm-tool .feature-card p{font-size:12.5px; color:#8A7E72; line-height:1.55; margin:0;}
+
+.pm-tool .role-grid{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:64px;
+}
+.pm-tool .role-card{
+  background:#fff; border:1.5px solid var(--line); border-radius:9px; padding:18px;
+  position:relative;
+  background-image:radial-gradient(circle at 0 20px, var(--paper) 4px, transparent 4.5px),
+                    radial-gradient(circle at 100% 20px, var(--paper) 4px, transparent 4.5px);
+}
+.pm-tool .role-card .role-name{
+  font-family:'IBM Plex Mono'; font-size:11px; text-transform:uppercase; letter-spacing:.6px;
+  color:var(--orange-deep); font-weight:600; margin-bottom:8px;
+}
+.pm-tool .role-card ul{margin:0; padding-left:16px; font-size:12px; color:#5A4F44; line-height:1.7;}
+
+.pm-tool .site-footer{
+  border-top:1px solid var(--line); padding:24px 32px; margin-top:20px;
+  text-align:center; font-size:11.5px; color:#B4A798;
+}
+
+@media (max-width:900px){
+  .pm-tool .feature-grid, .pm-tool .role-grid{grid-template-columns:1fr 1fr;}
+  .pm-tool .hero h1{font-size:30px;}
+}
+@media (max-width:640px){
+  .pm-tool .feature-grid, .pm-tool .role-grid{grid-template-columns:1fr;}
+}
