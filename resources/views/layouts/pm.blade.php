@@ -17,6 +17,17 @@
             <div>
                 <div class="nav-label">Projects</div>
                 <ul class="nav-list">
+                    <li>
+                        <a
+                            href="{{ route('projects.index') }}"
+                            wire:navigate
+                            class="nav-item {{ request()->routeIs('projects.index') ? 'active' : '' }}"
+                        >
+                            <div class="nav-item-row">
+                                <span>All projects</span>
+                            </div>
+                        </a>
+                    </li>
                     @foreach ($navProjects ?? \App\Models\Project::withCount('tasks')->orderBy('name')->get() as $navProject)
                         @php
                             $navDone = $navProject->tasks()->where('status', 'done')->count();

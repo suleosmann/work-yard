@@ -153,7 +153,7 @@
                     <div class="field-row">
                         <div class="field" style="width:100%;">
                             <label>Name</label>
-                            <input type="text" wire:model="name" placeholder="e.g. Claims Disbursement System">
+                            <input type="text" wire:model="name" placeholder="Project name">
                             @error('name') <div class="error">{{ $message }}</div> @enderror
                         </div>
                     </div>
