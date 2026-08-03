@@ -39,6 +39,19 @@
                 </ul>
             </div>
 
+            @can('manage users')
+                <div>
+                    <div class="nav-label">Team</div>
+                    <ul class="nav-list">
+                        <li>
+                            <a href="{{ route('users.index') }}" wire:navigate class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                                Users
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            @endcan
+
             <div class="sidebar-footer mono">
                 {{ auth()->user()->name }} &middot; {{ ucfirst(auth()->user()->getRoleNames()->first() ?? 'no role') }}<br>
                 <a href="{{ route('profile.edit') }}" wire:navigate style="color:#D8CDC2;">Account settings</a>

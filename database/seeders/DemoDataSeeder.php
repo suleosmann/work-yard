@@ -13,8 +13,13 @@ class DemoDataSeeder extends Seeder
     public function run(): void
     {
         $admin = User::firstOrCreate(
-            ['email' => 'suleiman@workyard.test'],
-            ['name' => 'Suleiman', 'password' => bcrypt('password'), 'email_verified_at' => now()]
+            ['email' => 'suleosman73@gmail.com'],
+            [
+                'name' => 'Suleiman Osman',
+                'phone' => '254718772203',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ]
         );
         $admin->syncRoles([RoleName::ADMIN]);
 

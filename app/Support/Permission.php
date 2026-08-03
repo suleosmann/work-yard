@@ -24,6 +24,8 @@ class Permission
 
     const ADD_COMMENTS = 'add comments';
 
+    const MANAGE_USERS = 'manage users';
+
     /**
      * @return array<int, string>
      */
@@ -40,6 +42,7 @@ class Permission
             self::QA_DECIDE,
             self::MANAGE_RESOURCES,
             self::ADD_COMMENTS,
+            self::MANAGE_USERS,
         ];
     }
 }
